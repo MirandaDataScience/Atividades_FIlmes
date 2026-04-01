@@ -20,61 +20,85 @@
     </form>
 
     <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-        
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
+    const firebaseConfig = {
+        apiKey: "AIzaSyD9QoolnsS4YkMGxL8aX8JFuQU0OuM-kUI",
+        authDomain: "atividade-bd-876d1.firebaseapp.com",
+        projectId: "atividade-bd-876d1",
+        storageBucket: "atividade-bd-876d1.firebasestorage.app",
+        messagingSenderId: "644623573924",
+        appId: "1:644623573924:web:bdbda4677663323b6c1731"
+    };
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD9QoolnsS4YkMGxL8aX8JFuQU0OuM-kUI",
-            authDomain: "atividade-bd-876d1.firebaseapp.com",
-            projectId: "atividade-bd-876d1",
-            storageBucket: "atividade-bd-876d1.firebasestorage.app",
-            messagingSenderId: "644623573924",
-            appId: "1:644623573924:web:bdbda4677663323b6c1731"
-        };
+    // Inicializa o Firebase
+    const app = initializeApp(firebaseConfig);
+    
+    // Agora o getFirestore vai funcionar porque foi importado corretamente
+    const db = getFirestore(app);
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const pegaCapa = document.getElementById("capaFilme");
+    const pegaNome = document.getElementById("nomeFilme");
+    const pegaGenero = document.getElementById("generoFilme");
+    const pegaAno = document.getElementById("anoFilme");
+    const pegaBtn = document.getElementById("Btn");
 
-        const pegaCapa = document.getElementById("capaFilme");
-        const pegaNome = document.getElementById("nomeFilme");
-        const pegaGenero = document.getElementById("generoFilme");
-        const pegaAno = document.getElementById("anoFilme");
-        const pegaBtn = document.getElementById("Btn");
-       
+    pegaBtn.addEventListener("click", async (event) => {
+        event.preventDefault(); // Impede o refresh da página
 
-        pegaBtn.addEventListener("click", async (event) => {
-                    
-            event.preventDefault();
-
-            try{
-                const docRef = await addDoc(collection(db, "filmes"), {
+        try {
+            const docRef = await addDoc(collection(db, "filmes"), {
                 capa: pegaCapa.value,
                 nome: pegaNome.value,
                 genero: pegaGenero.value,
-                ano: pegaAno.value,
-                dataCriacao: new Date()
+                ano: pegaAno.value
             });
+            console.log("Documento escrito com ID: ", docRef.id);
+            alert("Sucesso!");
+        } catch (e) {
+            console.error("Erro ao adicionar: ", e);
+        }
+    });
 
-            console.log("documento gravado com id: ", docRef.id);
-            alert("Filme fravado com sucesso!");
+    const listaContainer = document.getElementById("listaFilmes");
 
-            pegaCapa   = "";  
-            pegaNome  = "";
-            pegaGenero = ""; 
-            pegaAno  = "";         
+        async function renderizarFilmes() {
+            listaContainer.innerHTML = "<p>Carregando filmes...</p>";
 
-            } catch (e) {
-                console.error("Erro ao adcionar documento: ", e);
-                alert("Erro ao gravar dados.")
-            };
-        });
-    </script>
+           try {
+                const q = query(collection(db, "filmes"));
+                const querySnapshot = await getDocs(q);
+
+                listaContainer.innerHTML = "";
+
+                querySnapshot.forEach((doc) => {
+                    const filme = doc.data();
+                
+                    listaContainer.innerHTML += `
+                        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <img src="${filme.capa}" alt="Capa" style="width: 100px; display: block;">
+                            <h3>${filme.nome}</h3>
+                            <p><strong>Gênero:</strong> ${filme.genero}</p>
+                            <p><strong>Ano:</strong> ${filme.ano}</p>
+                        </div>
+                     `;
+                });
+           } catch (error) {
+                console.error("error ao buscar: ", error);
+                listaContainer.innerHTML = "<p>Erro ao carregar lista.</p>";
+           }
+        }
+
+        renderizarFilmes();
+
+</script>
+
+    <hr>
+    <h2>Lista de Filmes</h2>
+    <div id="listaFilmes"></div>
+
+
+
 </body>
 </html>
