@@ -1,0 +1,59 @@
+button, input{
+
+    border: solid #fdff03 1px;
+    border-radius: 50px;
+    padding: 10px;
+    background-color: #3a1c9c;
+    font-family: "Roboto Mono";
+    width: 200px;
+    color: #fdff03;
+}
+
+button:hover, input:hover{
+    background-color: #fdff03;
+    color: #170063;
+    transition: 0.5s ease;
+    
+}
+
+input:hover::placeholder{
+    color: #170063;
+    transition: 0.5s ease;
+}
+
+h1,h2{
+    color: #fdff03;
+    font-family: "Roboto Mono";
+}
+
+.card{
+    border: 1px solid #fdff03; 
+    padding: 10px; 
+    margin-bottom: 10px; 
+    border-radius: 8px;
+    color: #fdff03;
+    background-color: #3a1c9c;
+    font-family: "Roboto Mono";
+}
+
+.card:hover{
+    background-color: #fdff03;
+    color: #170063;
+    transition: 0.5s ease;
+}
+
+hr{
+    border-color: #fdff03;
+}
+
+
+input::placeholder{
+    color: #fdff03
+
+}
+
+body {
+    background-color: #170063;
+}
+
+

@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gravar no firebase</title>
+    <title>Filmes</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+    </style>
+
 </head>
 <body>
 
     <h1>
-        form firebase
+        Form Filmes
     </h1>
 
     <form>
@@ -76,7 +81,7 @@
                     const filme = doc.data();
                 
                     listaContainer.innerHTML += `
-                        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                        <div class="card">
                             <img src="${filme.capa}" alt="Capa" style="width: 100px; display: block;">
                             <h3>${filme.nome}</h3>
                             <p><strong>Gênero:</strong> ${filme.genero}</p>
