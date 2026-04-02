@@ -25,8 +25,9 @@
     </form>
 
     <script type="module">
-        // 1. Adicione o onSnapshot nas importações
+        // Importa as funções principais do Firebase (inicialização)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+         // Importa funções do Firestore (banco de dados)
         import { 
             getFirestore, 
             collection, 
@@ -34,7 +35,8 @@
             query, 
             onSnapshot // <-- Importante: Importe o onSnapshot
         } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-    
+        
+        // Configuração do Firebase (dados do projeto)
         const firebaseConfig = {
             apiKey: "AIzaSyD9QoolnsS4YkMGxL8aX8JFuQU0OuM-kUI",
             authDomain: "atividade-bd-876d1.firebaseapp.com",
@@ -43,28 +45,34 @@
             messagingSenderId: "644623573924",
             appId: "1:644623573924:web:bdbda4677663323b6c1731"
         };
-    
+        
+        // Inicializa o app Firebase
         const app = initializeApp(firebaseConfig);
+        // Conecta com o banco de dados Firestore
         const db = getFirestore(app);
-    
+        
+        // Pegando os elementos do HTML (inputs e botão)
         const pegaCapa = document.getElementById("capaFilme");
         const pegaNome = document.getElementById("nomeFilme");
         const pegaGenero = document.getElementById("generoFilme");
         const pegaAno = document.getElementById("anoFilme");
         const pegaBtn = document.getElementById("Btn");
+
+        // Div onde os filmes vão aparecer
         const listaContainer = document.getElementById("listaFilmes");
     
-        // GRAVAR DADOS
+        // EVENTO DO BOTÃO (quando clicar em "Gravar")
         pegaBtn.addEventListener("click", async (event) => {
             event.preventDefault();
     
             try {
+                // Adiciona um novo filme no banco (coleção "filmes")
                 await addDoc(collection(db, "filmes"), {
                     capa: pegaCapa.value,
                     nome: pegaNome.value,
                     genero: pegaGenero.value,
                     ano: pegaAno.value,
-                    timestamp: new Date() // Dica: Adicione um campo de tempo para ordenar se quiser
+                    timestamp: new Date()
                 });
                 
                 // Limpa os campos após enviar
@@ -91,10 +99,10 @@
                     listaContainer.innerHTML = "<p>Nenhum filme cadastrado.</p>";
                     return;
                 }
-    
+                 // Percorre todos os documentos da coleção
                 snapshot.forEach((doc) => {
                     const filme = doc.data();
-                    
+                     // Mostra cada filme na tela
                     listaContainer.innerHTML += `
                         <div class="card">
                             <img src="${filme.capa}" alt="Capa" class="capa" class="capa">
@@ -109,7 +117,7 @@
             });
         }
     
-        // Inicia o "ouvinte" ao carregar a página
+       // Chama a função quando a página carrega
         escutarFilmes();
     </script>
 
