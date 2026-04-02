@@ -17,87 +17,101 @@
     </h1>
 
     <form>
-        <p><input type="text"  id="capaFilme" placeholder="Capa do filme"></p>
-        <p><input type="text"  id="nomeFilme" placeholder="Digite o nome do filme "></p>
-        <p><input type="text"  id="generoFilme" placeholder="Digite o gênero do filme "></p>
-        <p><input type="text"  id="anoFilme" placeholder="Digite o ano do filme "></p>
-        <p><button id="Btn">Gravar</button></p>
+        <input type="text"  id="capaFilme" placeholder="Capa do filme">
+        <input type="text"  id="nomeFilme" placeholder="Digite o nome do filme ">
+        <input type="text"  id="generoFilme" placeholder="Digite o gênero do filme ">
+        <input type="text"  id="anoFilme" placeholder="Digite o ano do filme ">
+        <button id="Btn">Gravar</button>
     </form>
 
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyD9QoolnsS4YkMGxL8aX8JFuQU0OuM-kUI",
-        authDomain: "atividade-bd-876d1.firebaseapp.com",
-        projectId: "atividade-bd-876d1",
-        storageBucket: "atividade-bd-876d1.firebasestorage.app",
-        messagingSenderId: "644623573924",
-        appId: "1:644623573924:web:bdbda4677663323b6c1731"
-    };
-
-    // Inicializa o Firebase
-    const app = initializeApp(firebaseConfig);
+        // 1. Adicione o onSnapshot nas importações
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            query, 
+            onSnapshot // <-- Importante: Importe o onSnapshot
+        } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
     
-    // Agora o getFirestore vai funcionar porque foi importado corretamente
-    const db = getFirestore(app);
-
-    const pegaCapa = document.getElementById("capaFilme");
-    const pegaNome = document.getElementById("nomeFilme");
-    const pegaGenero = document.getElementById("generoFilme");
-    const pegaAno = document.getElementById("anoFilme");
-    const pegaBtn = document.getElementById("Btn");
-
-    pegaBtn.addEventListener("click", async (event) => {
-        event.preventDefault(); // Impede o refresh da página
-
-        try {
-            const docRef = await addDoc(collection(db, "filmes"), {
-                capa: pegaCapa.value,
-                nome: pegaNome.value,
-                genero: pegaGenero.value,
-                ano: pegaAno.value
-            });
-            console.log("Documento escrito com ID: ", docRef.id);
-            alert("Sucesso!");
-        } catch (e) {
-            console.error("Erro ao adicionar: ", e);
-        }
-    });
-
-    const listaContainer = document.getElementById("listaFilmes");
-
-        async function renderizarFilmes() {
-            listaContainer.innerHTML = "<p>Carregando filmes...</p>";
-
-           try {
-                const q = query(collection(db, "filmes"));
-                const querySnapshot = await getDocs(q);
-
-                listaContainer.innerHTML = "";
-
-                querySnapshot.forEach((doc) => {
-                    const filme = doc.data();
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9QoolnsS4YkMGxL8aX8JFuQU0OuM-kUI",
+            authDomain: "atividade-bd-876d1.firebaseapp.com",
+            projectId: "atividade-bd-876d1",
+            storageBucket: "atividade-bd-876d1.firebasestorage.app",
+            messagingSenderId: "644623573924",
+            appId: "1:644623573924:web:bdbda4677663323b6c1731"
+        };
+    
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+    
+        const pegaCapa = document.getElementById("capaFilme");
+        const pegaNome = document.getElementById("nomeFilme");
+        const pegaGenero = document.getElementById("generoFilme");
+        const pegaAno = document.getElementById("anoFilme");
+        const pegaBtn = document.getElementById("Btn");
+        const listaContainer = document.getElementById("listaFilmes");
+    
+        // GRAVAR DADOS
+        pegaBtn.addEventListener("click", async (event) => {
+            event.preventDefault();
+    
+            try {
+                await addDoc(collection(db, "filmes"), {
+                    capa: pegaCapa.value,
+                    nome: pegaNome.value,
+                    genero: pegaGenero.value,
+                    ano: pegaAno.value,
+                    timestamp: new Date() // Dica: Adicione um campo de tempo para ordenar se quiser
+                });
                 
+                // Limpa os campos após enviar
+                pegaCapa.value = "";
+                pegaNome.value = "";
+                pegaGenero.value = "";
+                pegaAno.value = "";
+                
+                alert("Filme adicionado!");
+            } catch (e) {
+                console.error("Erro ao adicionar: ", e);
+            }
+        });
+    
+        // LISTAR EM TEMPO REAL (onSnapshot)
+        function escutarFilmes() {
+            const q = query(collection(db, "filmes"));
+    
+            // O onSnapshot fica "ouvindo" a query q
+            onSnapshot(q, (snapshot) => {
+                listaContainer.innerHTML = ""; // Limpa a lista antes de desenhar a nova versão
+    
+                if (snapshot.empty) {
+                    listaContainer.innerHTML = "<p>Nenhum filme cadastrado.</p>";
+                    return;
+                }
+    
+                snapshot.forEach((doc) => {
+                    const filme = doc.data();
+                    
                     listaContainer.innerHTML += `
                         <div class="card">
-                            <img src="${filme.capa}" alt="Capa" style="width: 100px; display: block;">
+                            <img src="${filme.capa}" alt="Capa" class="capa" class="capa">
                             <h3>${filme.nome}</h3>
                             <p><strong>Gênero:</strong> ${filme.genero}</p>
                             <p><strong>Ano:</strong> ${filme.ano}</p>
                         </div>
-                     `;
+                    `;
                 });
-           } catch (error) {
-                console.error("error ao buscar: ", error);
-                listaContainer.innerHTML = "<p>Erro ao carregar lista.</p>";
-           }
+            }, (error) => {
+                console.error("Erro no tempo real: ", error);
+            });
         }
-
-        renderizarFilmes();
-
-</script>
+    
+        // Inicia o "ouvinte" ao carregar a página
+        escutarFilmes();
+    </script>
 
     <hr>
     <h2>Lista de Filmes</h2>
